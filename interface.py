@@ -3,7 +3,7 @@ from tkinter import filedialog, messagebox
 import os
 import subprocess
 
-class proyect:
+class Proyecto:
     def __init__(self, root):
         self.root = root
         self.root.title("Proyecto II ADA II")
@@ -32,15 +32,35 @@ class proyect:
 
     def convert_file(self):
         if self.file_path and self.file_path.endswith(".mpl"):
-            dzn_file_path = self.file_path.replace(".mpl", ".dzn")
+            directory = "archivos"
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+
+            dzn_file_path = os.path.join(directory, os.path.basename(self.file_path).replace(".mpl", ".dzn"))
             try:
                 with open(self.file_path, "r") as mpl_file:
-                    data = mpl_file.read()
+                    lines = mpl_file.readlines()
+
+                n = int(lines[0].strip())  # Número de personas
+                m = int(lines[1].strip())  # Número de opiniones posibles
+                pi = list(map(int, lines[2].strip().split(',')))  # Distribución de personas
+                vi = list(map(float, lines[3].strip().split(',')))  # Opiniones posibles
+                cei = list(map(float, lines[4].strip().split(',')))  # Costos extras
+                cij = [list(map(float, line.strip().split(','))) for line in lines[5:5 + m]]  # Costos de desplazamiento
+                ct = float(lines[5 + m].strip())  # Costo total máximo permitido
+                max_movs = int(lines[6 + m].strip())  # Límite de movimientos
 
                 with open(dzn_file_path, "w") as dzn_file:
-                    dzn_file.write(data)  
+                    dzn_file.write(f"n = {n};\n")
+                    dzn_file.write(f"m = {m};\n")
+                    dzn_file.write(f"p = {pi};\n")
+                    dzn_file.write(f"v = {vi};\n")
+                    dzn_file.write(f"c = array2d(1..m, 1..m, {cij});\n")
+                    dzn_file.write(f"ce = {cei};\n")
+                    dzn_file.write(f"ct = {ct};\n")
+                    dzn_file.write(f"maxMovs = {max_movs};\n")
 
-                self.result_text.insert(tk.END, f"Archivo elegido: {dzn_file_path}\n")
+                self.result_text.insert(tk.END, f"Archivo .dzn creado en: {dzn_file_path}\n")
                 self.run_model_button.config(state=tk.NORMAL)
                 print(f"Archivo .dzn creado en: {dzn_file_path}") 
             except Exception as e:
@@ -49,13 +69,14 @@ class proyect:
             messagebox.showerror("Error", "Por favor, selecciona un archivo .mpl válido.")
 
     def run_model(self):
-        dzn_file_path = self.file_path.replace(".mpl", ".dzn")
+        
+        dzn_file_path = os.path.join("archivos", os.path.basename(self.file_path).replace(".mpl", ".dzn"))
         if os.path.exists(dzn_file_path):
             try:
-           
-                minizinc_executable = "minizinc"  #"C:\\Program Files\\MiniZinc\\minizinc.exe"
-                minizinc_model_path = "proyecto.mzn"
+                minizinc_executable = "minizinc" 
+                minizinc_model_path = "proyecto.mzn"  # Ruta del archivo del modelo de MiniZinc
                 
+                # Ejecutar el modelo de MiniZinc con el archivo .dzn
                 result = subprocess.run([minizinc_executable, minizinc_model_path, dzn_file_path], capture_output=True, text=True)
 
                 if result.returncode == 0:
@@ -69,9 +90,9 @@ class proyect:
         else:
             messagebox.showerror("Error", "No se encontró el archivo .dzn.")
 
-
 if __name__ == "__main__":
     root = tk.Tk()
-    app = proyect(root)
+    app = Proyecto(root)
     root.mainloop()
+
 
