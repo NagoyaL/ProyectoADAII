@@ -1,10 +1,10 @@
 import tkinter as tk
-from interface import FileConverterApp
+from interface import proyect
 
 def main():
 
 		root = tk.Tk()
-		app = FileConverterApp(root)
+		app = proyect(root)
 		root.mainloop()
 
 if __name__ == "__main__":
