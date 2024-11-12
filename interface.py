@@ -17,7 +17,7 @@ class Proyecto:
         self.run_model_button = tk.Button(root, text="Ejecutar en MiniZinc", command=self.run_model, state=tk.DISABLED)
         self.run_model_button.pack(pady=10)
 
-        self.result_text = tk.Text(root, height=10, width=50)
+        self.result_text = tk.Text(root, height=30, width=100)
         self.result_text.pack(pady=10)
         self.result_text.insert(tk.END, "Aquí se mostrará el resultado de MiniZinc.\n")
 
@@ -90,6 +90,7 @@ class Proyecto:
                     # Verificar si el proceso se ejecutó correctamente
                     if result.returncode == 0:
                         self.result_text.insert(tk.END, f"Resultado de MiniZinc:\n{result.stdout}\n")
+                        print(f"Resultado de MiniZinc: {result.stdout}")
                     else:
                         # Si hay un error en la ejecución, mostrar el mensaje de error
                         self.result_text.insert(tk.END, f"Error en MiniZinc:\n{result.stderr}\n")
@@ -110,5 +111,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = Proyecto(root)
     root.mainloop()
-
-

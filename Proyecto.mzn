@@ -46,17 +46,8 @@ array[1..m, 1..m] of var float: costo_parcial = array2d(1..m, 1..m,
 solve minimize polarizacion;
 
 output [
-  "Solucion Optima:\n",
-  "---------------\n",
-  "Polarización = \(polarizacion)\n",
-  "Distribución inicial = \(p)\n",
-  "Distribución final = \(p_modificado)\n\n",
-  "Movimientos (de -> a : cantidad):\n"
-] ++
-[
-  if fix(X[i,j]) > 0 then
-    "  \(i) -> \(j) : \(X[i,j])\n"
-  else ""
-  endif
-  | i,j in 1..m
-];
+
+  "Distribucion inicial = \(p)\n",
+  "Distribucion final = \(p_modificado)\n\n",
+  "Polarizacion = \(polarizacion)\n"
+]
