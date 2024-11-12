@@ -1,34 +1,62 @@
-% Parámetros y Variables
-int: n;
+int: n; 
 int: m;
-array[1..m] of int: p;
 array[1..m] of float: v;
-array[1..m,1..m] of float: c;
+array[1..m] of int: p;
+
+array[1..m, 1..m] of float: c;
 array[1..m] of float: ce;
-float: ct;
+
+array[1..m] of 0..1: esta_vacio = [if p[j] == 0 then 1 else 0 endif | j in 1..m];
+
+array[1..m, 1..m] of var 0..n: X;
+array[1..m] of var 0..n: p_modificado;
+
+array[1..m] of var 0..1: es_mediana = [if (i = 1 \/ sum(j in 1..i-1)(p_modificado[j]) < n/2.0) /\ sum(j in 1..i)(p_modificado[j]) >= n/2.0 then 1 else 0 endif | i in 1..m];
+
+var float: valor_mediana = sum(i in 1..m)(v[i] * es_mediana[i]);
+var float: costo_total = sum(i in 1..m, j in 1..m)(
+    (c[i,j] * (1 + p[i]/n) + ce[j] * esta_vacio[j]) * X[i,j]
+);
+var float: polarizacion = sum(i in 1..m)(
+    p_modificado[i] * abs(v[i] - valor_mediana)
+);
+
+constraint forall(i in 1..m)(
+    p_modificado[i] = p[i] + sum(k in 1..m)(X[k,i]) - sum(k in 1..m)(X[i,k])
+);
+
+constraint forall(i in 1..m)(
+    sum(j in 1..m)(X[i,j]) <= p[i]
+);
+
 int: maxMovs;
-array[1..m, 1..m] of var 0..n: x;
-
-% Aproximación de la mediana (promedio ponderado)
-float: approx_median = sum(i in 1..m)(p[i] * v[i]) / sum(i in 1..m)(p[i]);
-
-% 1. Restricción de Costo Máximo
-constraint sum(i in 1..m, j in 1..m where i != j)(
-    x[i,j] * (c[i,j] * (1 + p[i] / n) + (if p[j] = 0 then ce[j] else 0 endif))
-) <= ct;
-
-% 2. Límite de Movimientos
-constraint sum(i in 1..m, j in 1..m where i != j)(
-    abs(j - i) * x[i,j]
+constraint sum(i in 1..m, j in 1..m)(
+    abs(j - i) * X[i,j]
 ) <= maxMovs;
 
-% 3. Conservación de Personas
-% La cantidad total de personas que se mueven desde cada opinión debe ser igual a la cantidad inicial.
-constraint forall(i in 1..m)(
-    sum(j in 1..m)(x[i,j]) = p[i]
-);
+float: ct; 
+constraint costo_total <= ct;
 
-% Función objetivo usando la aproximación de la mediana
-solve minimize sum(i in 1..m)(
-    p[i] * abs(v[i] - approx_median)
-);
+constraint sum(i in 1..m)(es_mediana[i]) = 1;
+
+array[1..m, 1..m] of var float: costo_parcial = array2d(1..m, 1..m,
+  [ (c[i,j] * (1 + p[i]/n) + ce[j] * esta_vacio[j]) * X[i,j]
+    | i in 1..m, j in 1..m ]);
+
+solve minimize polarizacion;
+
+output [
+  "Solucion Optima:\n",
+  "---------------\n",
+  "Polarización = \(polarizacion)\n",
+  "Distribución inicial = \(p)\n",
+  "Distribución final = \(p_modificado)\n\n",
+  "Movimientos (de -> a : cantidad):\n"
+] ++
+[
+  if fix(X[i,j]) > 0 then
+    "  \(i) -> \(j) : \(X[i,j])\n"
+  else ""
+  endif
+  | i,j in 1..m
+];

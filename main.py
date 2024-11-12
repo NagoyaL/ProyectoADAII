@@ -1,10 +1,10 @@
 import tkinter as tk
-from interface import proyect
+from interface import Proyecto
 
 def main():
 
 		root = tk.Tk()
-		app = proyect(root)
+		app = Proyecto(root)
 		root.mainloop()
 
 if __name__ == "__main__":
