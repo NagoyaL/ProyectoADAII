@@ -5,5 +5,4 @@
 # Ignorar el entorno virtual
 venv/
 
-# Ignorar archivos en la carpeta 'archivos'
-archivos/*
+
