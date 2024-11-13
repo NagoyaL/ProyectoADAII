@@ -1,9 +1,9 @@
 # Integrantes
 
-Juan Pablo Ante - 2140132
-Nicolás Garcés Larrahondo - 2180066
-Natalia Andrea Marín - 2041622
-Juan Camilo Valencia - 2259459
+- Juan Pablo Ante - 2140132
+- Nicolás Garcés Larrahondo - 2180066
+- Natalia Andrea Marín - 2041622
+- Juan Camilo Valencia - 2259459
 
 
 # Proyecto ADA II
